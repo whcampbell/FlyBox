@@ -14,7 +14,7 @@
 <body>
   <p>Still working on functionality. More to come.</p>
   <canvas id="myCanvas" width="400px" height="600px"></canvas>
-  <hr>
+  <br>
   <input type="button" id="button" value="I'm Ready!"></input>
   <script src="game.js"></script>
   <p>This is a Will Campbell work in progress.</p>
