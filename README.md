@@ -11,7 +11,7 @@
   p {color: black}
 </style>
 
-<body>
+<body id="body">
   <p>Still working on functionality. More to come.</p>
   <canvas id="myCanvas" width="400px" height="600px"></canvas>
   <br>
