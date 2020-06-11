@@ -27,6 +27,7 @@ window.onkeydown = function(event) {
             lpress = true
             break;
         case 38:
+            event.preventDefault();
             this.console.log("up");
             upress = true;
             break;
@@ -35,6 +36,7 @@ window.onkeydown = function(event) {
             rpress = true;
             break;
         case 40:
+            event.preventDefault();
             this.console.log("down");
             dpress = true;
             break;
