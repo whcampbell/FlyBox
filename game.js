@@ -112,6 +112,7 @@ function physics() {
 
     if (grounded && pitCheck()) {
         dying = true;
+        grounded = false;
         if (x < 160) {
             leftPit = true;
         }
