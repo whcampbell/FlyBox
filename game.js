@@ -2,6 +2,7 @@ let body = document.getElementById("body");
 body.style.backgroundColor = "palegreen";
 let canvas = document.getElementById("myCanvas");
 let context = canvas.getContext("2d");
+let button = document.getElementById("button");
 let x = 30;
 let y = 460;
 let dx = 0;
@@ -14,7 +15,7 @@ let dpress = false;
 let dying = false;
 let leftPit = false;
 
-window.onload = function() {
+button.onclick = function() {
     this.loop();
 }
 
