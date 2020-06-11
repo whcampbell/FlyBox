@@ -17,7 +17,7 @@ let leftPit = false;
 
 button.onclick = function() {
     console.log("get jumpin");
-    this.loop();
+    loop();
 }
 
 window.onkeydown = function(event) {
