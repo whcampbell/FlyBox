@@ -15,8 +15,9 @@
   <p>Still working on functionality. More to come.</p>
   <canvas id="myCanvas" width="400px" height="600px"></canvas>
   <br>
-  <input type="button" id="button" value="I'm Ready!"></input>
+  <input type="button" id="button" value="I'm Ready!"/>
   <script src="game.js"></script>
+  <br>
   <p>This is a Will Campbell work in progress.</p>
   <p>Special thanks to Pascal King for ideas and fren</p>
 </body>
