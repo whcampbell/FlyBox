@@ -11,6 +11,9 @@
   p {color: black}
 </style>
 
+use WASD for a rocket boost in the air!
+(gotta admit, bit buggy on the ground)
+
 <body id="body">
   <p>Still working on functionality. More to come.</p>
   <canvas id="myCanvas" width="400px" height="600px"></canvas>
