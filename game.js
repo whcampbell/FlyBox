@@ -14,6 +14,8 @@ let upress = false;
 let dpress = false;
 let dying = false;
 let leftPit = false;
+let rockets = 4;
+let particles = [];
 
 button.onclick = function() {
     console.log("get jumpin");
@@ -65,26 +67,47 @@ window.onkeyup = function(event) {
 }
 
 window.onkeypress = function(event) {
+    if (rockets < 1) {
+        return;
+    }
     switch (event.keyCode) {
         case 97:
             this.console.log("Apress");
+            dx -= 3;
+            particles.push(new Particle(2));
+            particles.push(new Particle(3));
+            particles.push(new Particle(4));
             break;
         case 119:
             this.console.log("Wpress");
+            dy -= 3;
+            particles.push(new Particle(11));
+            particles.push(new Particle(12));
+            particles.push(new Particle(1));
             break;
         case 100:
             this.console.log("Dpress");
+            dx += 3;
+            particles.push(new Particle(8));
+            particles.push(new Particle(9));
+            particles.push(new Particle(10));
             break;
         case 115:
             this.console.log("Spress");
+            dy += 3;
+            particles.push(new Particle(5));
+            particles.push(new Particle(6));
+            particles.push(new Particle(7));
             break;
     }
+    --rockets;
 }
 
 function loop() {
     context.clearRect(0,0,canvas.width, canvas.height);
     stage();
     box();
+    jets();
     if (dying) {
         die();
     } else {
@@ -108,6 +131,7 @@ function physics() {
         }
     } else if (grounded) {
         dx = dx / -5;
+        rockets = 4;
     }
 
     if (grounded && pitCheck()) {
@@ -206,4 +230,89 @@ function box() {
     context.fillStyle = "red";
     context.fillRect(x, y, 40, 40);
     context.restore();
+}
+
+function jets() {
+    context.save();
+    context.fillStyle = "red";
+
+    for (let i = particles.length - 1; i >= 0; --i) {
+        /*
+        if (typeof particles[i] == "undefined") {
+            continue;
+        }
+        */
+        particles[i].x += 3 * particles[i].dx;
+        particles[i].y += 3 * particles[i].dy;
+        if (particles[i].x > 400 || particles[i].x < 0 
+            || particles[i].y > 600 || particles[i].y < 0) {
+                particles.splice(i, 1);
+                continue;
+        }
+        context.beginPath();
+        context.arc(particles[i].x, particles[i].y, 3, 0, Math.PI * 2);
+        context.closePath();
+        context.fill();
+    }
+
+    context.restore();
+}
+
+
+class Particle {
+    constructor(direction) {
+        this.direction = direction;
+        switch (direction) {
+            case 1:
+                this.dx = .5;
+                this.dy = .866;
+                break;
+            case 2:
+                this.dx = .866;
+                this.dy = .5;
+                break;
+            case 3:
+                this.dx = 1;
+                this.dy = 0;
+                break;
+            case 4:
+                this.dx = .866;
+                this.dy = -.5;
+                break;
+            case 5:
+                this.dx = .5;
+                this.dy = -.866;
+                break;
+            case 6:
+                this.dx = 0;
+                this.dy = -1;
+                break;
+            case 7:
+                this.dx = -.5;
+                this.dy = -.866;
+                break;
+            case 8:
+                this.dx = -.866;
+                this.dy = -.5;
+                break;
+            case 9:
+                this.dx = -1;
+                this.dy = 0;
+                break;
+            case 10:
+                this.dx = -.866;
+                this.dy = .5;
+                break;
+            case 11:
+                this.dx = -.5;
+                this.dy = .866;
+                break;
+            case 12:
+                this.dx = 0;
+                this.dy = 1;
+                break;
+        }
+        this.x = x + 20;
+        this.y = y + 20;
+    }
 }
