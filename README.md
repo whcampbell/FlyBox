@@ -11,8 +11,10 @@
   p {color: black}
 </style>
 
-use WASD for a rocket boost in the air!
-(gotta admit, bit buggy on the ground)
+use  arrow keys to move on the ground and
+WASD for a rocket boost in the air!
+(gotta admit, pretty buggy on the ground,
+gotta talk to Pascal about hitboxes)
 
 <body id="body">
   <p>Still working on functionality. More to come.</p>
