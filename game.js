@@ -3,6 +3,7 @@ body.style.backgroundColor = "palegreen";
 let canvas = document.getElementById("myCanvas");
 let context = canvas.getContext("2d");
 let button = document.getElementById("button");
+let playing = false;
 let x = 30;
 let y = 460;
 let dx = 0;
@@ -12,17 +13,29 @@ let lpress = false;
 let rpress = false;
 let upress = false;
 let dpress = false;
-let dying = false;
+let wpress = false;
+let apress = false;
+let spress = false;
+let depress = false;
 let leftPit = false;
 let rockets = 4;
 let particles = [];
+let tiles = null;
 
 button.onclick = function() {
+    if (playing) {
+        return;
+    }
+    playing = true;
     console.log("get jumpin");
+    constructTiles();
     loop();
 }
 
 window.onkeydown = function(event) {
+    if (!playing) {
+        return;
+    }
     switch (event.keyCode) {
         case 37:
             this.console.log("left");
@@ -41,6 +54,58 @@ window.onkeydown = function(event) {
             event.preventDefault();
             this.console.log("down, preventing");
             dpress = true;
+            break;
+        case 65:
+            this.console.log("Apress");
+            if (apress || rockets < 1) {
+                break;
+            }
+            dx -= 3;
+            particles.push(new Particle(2));
+            particles.push(new Particle(3));
+            particles.push(new Particle(4));
+            apress = true;
+            --rockets;
+            break;
+        case 87:
+            this.console.log("Wpress");
+            if (wpress || rockets < 1) {
+                break;
+            }
+            dy -= 3;
+            grounded = false;
+            particles.push(new Particle(11));
+            particles.push(new Particle(12));
+            particles.push(new Particle(1));
+            wpress = true;
+            --rockets;
+            break;
+        case 68:
+            this.console.log("Dpress");
+            if (depress || rockets < 1) {
+                break;
+            }
+            dx += 3;
+            particles.push(new Particle(8));
+            particles.push(new Particle(9));
+            particles.push(new Particle(10));
+            depress = true;
+            --rockets;
+            break;
+        case 83:
+            this.console.log("Spress");
+            if (spress || rockets < 1) {
+                break;
+            }
+            dy += 3;
+            particles.push(new Particle(5));
+            particles.push(new Particle(6));
+            particles.push(new Particle(7));
+            spress = true;
+            --rockets;
+            break;
+        default :
+            this.console.log(event.keyCode);
             break;
     }
 }
@@ -63,44 +128,19 @@ window.onkeyup = function(event) {
             this.console.log("downup");
             dpress = false;
             break;
-    }
-}
-
-window.onkeypress = function(event) {
-    if (rockets < 1) {
-        return;
-    }
-    switch (event.keyCode) {
-        case 97:
-            this.console.log("Apress");
-            dx -= 3;
-            particles.push(new Particle(2));
-            particles.push(new Particle(3));
-            particles.push(new Particle(4));
+        case 65:
+            apress = false;
             break;
-        case 119:
-            this.console.log("Wpress");
-            dy -= 3;
-            particles.push(new Particle(11));
-            particles.push(new Particle(12));
-            particles.push(new Particle(1));
+        case 87:
+            wpress = false;
             break;
-        case 100:
-            this.console.log("Dpress");
-            dx += 3;
-            particles.push(new Particle(8));
-            particles.push(new Particle(9));
-            particles.push(new Particle(10));
+        case 68:
+            depress = false;
             break;
-        case 115:
-            this.console.log("Spress");
-            dy += 3;
-            particles.push(new Particle(5));
-            particles.push(new Particle(6));
-            particles.push(new Particle(7));
+        case 83:
+            spress = false;
             break;
     }
-    --rockets;
 }
 
 function loop() {
@@ -108,12 +148,8 @@ function loop() {
     stage();
     box();
     jets();
-    if (dying) {
-        die();
-    } else {
-        physics();
-    }
-
+    physics();
+    checkTiles();
     window.requestAnimationFrame(loop);
 }
 
@@ -134,40 +170,31 @@ function physics() {
         rockets = 4;
     }
 
-    if (grounded && pitCheck()) {
-        dying = true;
-        grounded = false;
-        if (x < 160) {
-            leftPit = true;
-        }
-    }
-
     // jump
     if (upress && grounded) {
-        dy = -3;
         grounded = false;
+        dy = -3;
     }
 
     // gravity and y axis motion
-    if (y < 460) {
-        dy += .1;
-    } else if (y > 460) {
-        if (x < 80) {
-            y = 460;
+    dy += .1;
+
+}
+
+function checkTiles() {
+    let copyX = x + dx;
+    if (collide([copyX, y])) {
+        dx = 0;
+    }
+
+    let copyY = y + dy;
+    if (collide([x, copyY])) {
+        if (dy > 0) {
             grounded = true;
-        } else if (x > 120 && x < 240) {
-            y = 460;
-            grounded = true;
-        } else if (x > 280) {
-            y = 460;
-            grounded = true;
-        } else {
-            dying = true;
-            if (x < 160) {
-                leftPit = true;
-            }
         }
-    } else if (y == 460);
+        dy = 0;
+        
+    }
 
     x += dx;
     if (x < 0) {
@@ -177,52 +204,44 @@ function physics() {
         x = 360;
     }
     y += dy;
-}
-
-function die() {
-    x += dx;
-    if (leftPit) {
-        if (x < 80) {
-            x = 80;
-        } else if (x > 120) {
-            x = 120;
+    if (y > 600) {
+        for (let i = 1; i <= 12; ++i) {
+            particles.push(new Particle(i, x + 20, y - 21));
         }
-    } else {
-        if (x < 240) {
-            x = 240;
-        } else if (x > 280) {
-            x = 280;
-        }
-    }
-
-    dy += .1
-    y += dy;
-
-    if (y > 700) {
-        dying = false;
-        leftPit = false;
-        grounded = true;
-        x = 30;
         y = 460;
-        dx = 0;
-        dy = 0;
+        x = 30;
     }
-    
+
 }
 
-function pitCheck() {
-    if (x > 80 && x < 120) {
-        return true;
+function collide(position) {
+    let left = Math.floor(position[0] / 40);
+    let right = Math.floor((position[0] + 40) / 40);
+    let top = Math.floor(position[1] / 40);
+    let bottom = Math.floor((position[1] + 40) / 40);
+
+    if (left < 0) {left = 0}
+    if (right > 9) {right = 9}
+    if (top < 0) {top = 0}
+    if (bottom > 14) {bottom = 14}
+
+    for (let i = top; i <= bottom; ++i) {
+        for (let j = left; j <= right; ++j) {
+            if (tiles[i][j] == 1) {
+                return true;
+            }
+        }
     }
-    if (x > 240 && x < 280) {
-        return true;
-    }
+
+    return false;
 }
 
 function stage() {
-    context.fillRect(0, 500, 80, 100)
-    context.fillRect(160, 500, 80, 100);
-    context.fillRect(320, 500, 80, 100);
+    context.fillRect(0, 520, 80, 80)
+    context.fillRect(160, 520, 80, 80);
+    context.fillRect(320, 520, 80, 80);
+    context.fillRect(80, 280, 80, 80);
+    context.fillRect(240, 120, 80, 80);
 }
 
 function box() {
@@ -237,11 +256,6 @@ function jets() {
     context.fillStyle = "red";
 
     for (let i = particles.length - 1; i >= 0; --i) {
-        /*
-        if (typeof particles[i] == "undefined") {
-            continue;
-        }
-        */
         particles[i].x += 3 * particles[i].dx;
         particles[i].y += 3 * particles[i].dy;
         if (particles[i].x > 400 || particles[i].x < 0 
@@ -258,9 +272,28 @@ function jets() {
     context.restore();
 }
 
+function constructTiles() {
+    tiles = [[0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,1,1,0,0],
+            [0,0,0,0,0,0,1,1,0,0],
+            [0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0],
+            [0,0,1,1,0,0,0,0,0,0],
+            [0,0,1,1,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0],
+            [1,1,0,0,1,1,0,0,1,1],
+            [1,1,0,0,1,1,0,0,1,1],
+            ]
+}
+
 
 class Particle {
-    constructor(direction) {
+    constructor(direction, jetX, jetY) {
         this.direction = direction;
         switch (direction) {
             case 1:
@@ -312,7 +345,15 @@ class Particle {
                 this.dy = 1;
                 break;
         }
-        this.x = x + 20;
-        this.y = y + 20;
+        if (jetX) {
+            this.x = jetX;
+        } else {
+            this.x = x + 20;
+        }
+        if (jetY) {
+            this.y = jetY;
+        } else {
+            this.y = y + 20;
+        }
     }
 }
