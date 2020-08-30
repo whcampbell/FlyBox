@@ -199,9 +199,11 @@ function checkTiles() {
     x += dx;
     if (x < 0) {
         x = 0;
+        dx = 0;
     }
     if (x > 360) {
         x = 360;
+        dx = 0;
     }
     y += dy;
     if (y > 600) {
