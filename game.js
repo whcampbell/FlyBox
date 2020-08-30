@@ -178,6 +178,9 @@ function physics() {
 
     // gravity and y axis motion
     dy += .1;
+    if (dy > .2) {
+        grounded = false;
+    }
 
 }
 
