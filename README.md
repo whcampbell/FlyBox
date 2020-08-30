@@ -15,7 +15,7 @@ use  arrow keys to move on the ground <br>
 and WASD for a rocket boost in the air!
 
 <body id="body">
-  <p>Still working on functionality. More to come.</p>
+  <p>Still working on game mechanics. More to come.</p>
   <canvas id="myCanvas" width="400px" height="600px"></canvas>
   <br>
   <input type="button" id="button" value="I'm Ready!"/>
