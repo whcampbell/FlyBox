@@ -18,9 +18,14 @@ let apress = false;
 let spress = false;
 let depress = false;
 let leftPit = false;
-let rockets = 4;
+let rockets = 0;
+let currRockets = 0;
+let collectible = [1,1];
 let particles = [];
 let tiles = null;
+
+let rocketImg = new Image();
+rocketImg.src = "./Sauce_Rocket.png"
 
 button.onclick = function() {
     if (playing) {
@@ -38,26 +43,21 @@ window.onkeydown = function(event) {
     }
     switch (event.keyCode) {
         case 37:
-            this.console.log("left");
             lpress = true
             break;
         case 38:
             event.preventDefault();
-            this.console.log("up, preventing");
             upress = true;
             break;
         case 39:
-            this.console.log("right");
             rpress = true;
             break;
         case 40:
             event.preventDefault();
-            this.console.log("down, preventing");
             dpress = true;
             break;
         case 65:
-            this.console.log("Apress");
-            if (apress || rockets < 1) {
+            if (apress || currRockets < 1) {
                 break;
             }
             dx -= 3;
@@ -65,11 +65,10 @@ window.onkeydown = function(event) {
             particles.push(new Particle(3));
             particles.push(new Particle(4));
             apress = true;
-            --rockets;
+            --currRockets;
             break;
         case 87:
-            this.console.log("Wpress");
-            if (wpress || rockets < 1) {
+            if (wpress || currRockets < 1) {
                 break;
             }
             dy -= 3;
@@ -78,11 +77,11 @@ window.onkeydown = function(event) {
             particles.push(new Particle(12));
             particles.push(new Particle(1));
             wpress = true;
-            --rockets;
+            --currRockets;
+            this.console.log(currRockets);
             break;
         case 68:
-            this.console.log("Dpress");
-            if (depress || rockets < 1) {
+            if (depress || currRockets < 1) {
                 break;
             }
             dx += 3;
@@ -90,11 +89,10 @@ window.onkeydown = function(event) {
             particles.push(new Particle(9));
             particles.push(new Particle(10));
             depress = true;
-            --rockets;
+            --currRockets;
             break;
         case 83:
-            this.console.log("Spress");
-            if (spress || rockets < 1) {
+            if (spress || currRockets < 1) {
                 break;
             }
             dy += 3;
@@ -102,7 +100,7 @@ window.onkeydown = function(event) {
             particles.push(new Particle(6));
             particles.push(new Particle(7));
             spress = true;
-            --rockets;
+            --currRockets;
             break;
         default :
             this.console.log(event.keyCode);
@@ -113,19 +111,15 @@ window.onkeydown = function(event) {
 window.onkeyup = function(event) {
     switch (event.keyCode) {
         case 37:
-            this.console.log("leftup");
             lpress = false;
             break;
         case 38:
-            this.console.log("upup");
             upress = false;
             break;
         case 39:
-            this.console.log("rightup");
             rpress = false;
             break;
         case 40:
-            this.console.log("downup");
             dpress = false;
             break;
         case 65:
@@ -150,24 +144,27 @@ function loop() {
     jets();
     physics();
     checkTiles();
+    collectibles();
     window.requestAnimationFrame(loop);
 }
 
 function physics() {
-    // x axis motion
+    // grounded x axis motion
     if (lpress && grounded) {
         dx -= .5;
         if (dx < -3) {
             dx = -3;
         }
+        currRockets = rockets;
     } else if (rpress && grounded) {
         dx += .5;
         if (dx > 3) {
             dx = 3;
         }
+        currRockets = rockets;
     } else if (grounded) {
-        dx = dx / -5;
-        rockets = 4;
+        dx = dx / 1.5;
+        currRockets = rockets;
     }
 
     // jump
@@ -176,7 +173,7 @@ function physics() {
         dy = -3;
     }
 
-    // gravity and y axis motion
+    // gravity
     dy += .1;
     if (dy > .2) {
         grounded = false;
@@ -215,8 +212,13 @@ function checkTiles() {
         }
         y = 460;
         x = 30;
+        rockets = 0;
+        currRockets = 0;
+        console.log("BOOOSHH");
+    } else if (y < 0) {
+        y = 0;
+        dy = 0;
     }
-
 }
 
 function collide(position) {
@@ -235,6 +237,13 @@ function collide(position) {
             if (tiles[i][j] == 1) {
                 return true;
             }
+            if (tiles[i][j] >= 2) {
+                rockets += 1;
+                currRockets += 1;
+                console.log("rocket get!");
+                tiles[i][j] = 0;
+                collectible = null;
+            }
         }
     }
 
@@ -242,11 +251,48 @@ function collide(position) {
 }
 
 function stage() {
-    context.fillRect(0, 520, 80, 80)
-    context.fillRect(160, 520, 80, 80);
-    context.fillRect(320, 520, 80, 80);
-    context.fillRect(80, 280, 80, 80);
-    context.fillRect(240, 120, 80, 80);
+    for (let i = 0; i <= 14; ++i) {
+        for (let j = 0; j <= 9; ++j) {
+            if (tiles[i][j] == 1) {
+                context.fillRect(j * 40, i * 40, 40, 40);
+            }
+            if (tiles[i][j] >= 2) {
+                context.drawImage(rocketImg, j * 40, i * 40);
+            }
+        }
+    }
+}
+
+function collectibles() {
+    if (collectible) {
+        tileX = collectible[1];
+        tileY = collectible[0];
+        tiles[tileY][tileX] += 2;
+        if (tiles[tileY][tileX] > 400) {
+            collectible = null;
+            tiles[tileY][tileX] = 0;
+        }
+    } else {
+        let randX = 0;
+        let randY = 14;
+        try {
+            while (tiles[randY][randX] == 1) {
+                randX = Math.floor(Math.random() * 10);
+                if (rockets < 2) {
+                    randY = Math.floor(Math.random() * 8) + 6;
+                } else {
+                    randY = Math.floor(Math.random() * 15);
+                }
+            }
+        } catch (exception) {
+            for (let i = 0; i < 15; ++i) {
+                console.log(tiles[i].toString());
+            }
+            throw "you're bad";
+        }
+        collectible = [randY, randX];
+    }
+
 }
 
 function box() {
