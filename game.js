@@ -23,9 +23,16 @@ let currRockets = 0;
 let collectible = [1,1];
 let particles = [];
 let tiles = null;
+let coinTimer = 0;
+let done = false;
+let startTime = 0
 
 let rocketImg = new Image();
 rocketImg.src = "./Sauce_Rocket.png"
+let coinFront = new Image();
+coinFront.src = "./Coin_Front.png"
+let coinSide = new Image();
+coinSide.src = "./Coin_Side.png"
 
 button.onclick = function() {
     if (playing) {
@@ -34,6 +41,7 @@ button.onclick = function() {
     playing = true;
     console.log("get jumpin");
     constructTiles();
+    startTime = performance.now();
     loop();
 }
 
@@ -142,10 +150,20 @@ function loop() {
     stage();
     box();
     jets();
+    rocketCounter();
     physics();
     checkTiles();
     collectibles();
-    window.requestAnimationFrame(loop);
+    ++coinTimer;
+    console.log(coinTimer);
+    if (coinTimer > 55) {
+        animateCoins();
+    }
+    if (done) {
+        win();
+    } else {
+        window.requestAnimationFrame(loop);
+    }
 }
 
 function physics() {
@@ -236,8 +254,10 @@ function collide(position) {
         for (let j = left; j <= right; ++j) {
             if (tiles[i][j] == 1) {
                 return true;
+            } else if (tiles[i][j] == 2 || tiles[i][j] == 3) {
+                tiles[i][j] = 0;
             }
-            if (tiles[i][j] >= 2) {
+            if (tiles[i][j] >= 4) {
                 rockets += 1;
                 currRockets += 1;
                 console.log("rocket get!");
@@ -255,8 +275,12 @@ function stage() {
         for (let j = 0; j <= 9; ++j) {
             if (tiles[i][j] == 1) {
                 context.fillRect(j * 40, i * 40, 40, 40);
+            } else if (tiles[i][j] == 2) {
+                context.drawImage(coinFront, j * 40, i * 40);
+            } else if (tiles[i][j] == 3) {
+                context.drawImage(coinSide, j * 40, i * 40);
             }
-            if (tiles[i][j] >= 2) {
+            if (tiles[i][j] >= 4) {
                 context.drawImage(rocketImg, j * 40, i * 40);
             }
         }
@@ -267,8 +291,8 @@ function collectibles() {
     if (collectible) {
         tileX = collectible[1];
         tileY = collectible[0];
-        tiles[tileY][tileX] += 2;
-        if (tiles[tileY][tileX] > 400) {
+        tiles[tileY][tileX] += 4;
+        if (tiles[tileY][tileX] > 800) {
             collectible = null;
             tiles[tileY][tileX] = 0;
         }
@@ -276,7 +300,7 @@ function collectibles() {
         let randX = 0;
         let randY = 14;
         try {
-            while (tiles[randY][randX] == 1) {
+            while (tiles[randY][randX] > 0) {
                 randX = Math.floor(Math.random() * 10);
                 if (rockets < 2) {
                     randY = Math.floor(Math.random() * 8) + 6;
@@ -293,6 +317,27 @@ function collectibles() {
         collectible = [randY, randX];
     }
 
+}
+
+function animateCoins() {
+    console.log("Animating Coins");
+    let coinCounter = 0;
+    for (let i = 0; i <= 14; ++i) {
+        for (let j = 0; j <= 9; ++j) {
+            if (tiles[i][j] == 2) {
+                ++coinCounter;
+                tiles[i][j] = 3;
+            } else if (tiles[i][j] == 3) {
+                ++coinCounter;
+                tiles[i][j] = 2;
+            }
+        }
+    }
+    console.log(coinCounter);
+    if (coinCounter == 0) {
+        done = true;
+    }
+    coinTimer = 0;
 }
 
 function box() {
@@ -323,20 +368,29 @@ function jets() {
     context.restore();
 }
 
+function rocketCounter() {
+    context.save()
+    context.fillStyle = "red";
+    context.font = "22px Arial";
+    context.fillText("Rockets", 320, 550);
+    context.fillText(currRockets.toString(), 355, 590);
+    context.restore();
+}
+
 function constructTiles() {
-    tiles = [[0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0],
+    tiles = [[2,3,0,0,0,0,0,0,2,3],
+            [0,0,0,0,0,0,2,2,0,0],
+            [0,0,0,0,0,0,3,3,0,0],
             [0,0,0,0,0,0,1,1,0,0],
             [0,0,0,0,0,0,1,1,0,0],
-            [0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,2,3,0,0],
+            [0,0,2,2,0,0,0,0,0,0],
             [0,0,1,1,0,0,0,0,0,0],
             [0,0,1,1,0,0,0,0,0,0],
             [0,0,0,0,0,0,0,0,0,0],
             [0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,3,3],
+            [0,0,0,0,2,3,0,0,2,2],
             [1,1,0,0,1,1,0,0,1,1],
             [1,1,0,0,1,1,0,0,1,1],
             ]
@@ -407,4 +461,15 @@ class Particle {
             this.y = y + 20;
         }
     }
+}
+
+function win() {
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    context.font = "30px Arial";
+    context.fillText("Got 'em all!", 130, 200);
+    let time = (performance.now() - startTime) / 1000;
+    time = Math.trunc(time);
+    let timeString = time.toString();
+    context.fillText("Time: " + timeString + " seconds", 90, 400);
+    context.fillText("Reload to try for better", 60, 500);
 }
