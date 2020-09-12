@@ -263,6 +263,9 @@ function collide(position) {
                 console.log("rocket get!");
                 tiles[i][j] = 0;
                 collectible = null;
+            } else if (tiles[i][j] == -1) {
+                rockets += 1;
+                tiles[i][j] = 0;
             }
         }
     }
@@ -280,7 +283,7 @@ function stage() {
             } else if (tiles[i][j] == 3) {
                 context.drawImage(coinSide, j * 40, i * 40);
             }
-            if (tiles[i][j] >= 4) {
+            if (tiles[i][j] >= 4 || tiles[i][j] == -1) {
                 context.drawImage(rocketImg, j * 40, i * 40);
             }
         }
@@ -390,7 +393,7 @@ function constructTiles() {
             [0,0,0,0,0,0,0,0,0,0],
             [0,0,0,0,0,0,0,0,0,0],
             [0,0,0,0,0,0,0,0,3,3],
-            [0,0,0,0,2,3,0,0,2,2],
+            [0,0,0,0,2,3,0,0,2,-1],
             [1,1,0,0,1,1,0,0,1,1],
             [1,1,0,0,1,1,0,0,1,1],
             ]
