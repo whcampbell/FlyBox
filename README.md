@@ -23,7 +23,10 @@ Get all the coins, quick!
   <input type="button" id="button" value="I'm Ready!"/>
   <script src="game.js"></script>
   <br>
-  <p>This is a Will Campbell production</p>
+  <p>
+    This is a Will Campbell production <br>
+    (My best time is 13 seconds)
+  </p>
   <p>Special thanks to Pascal King for ideas and fren</p>
 </body>
 
