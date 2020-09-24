@@ -25,7 +25,7 @@ Get all the coins, quick!
   <br>
   <p>
     This is a Will Campbell production <br>
-    (My best time is 13 seconds)
+    (My best time is 12 seconds)
   </p>
   <p>Special thanks to Pascal King for ideas and fren</p>
 </body>
